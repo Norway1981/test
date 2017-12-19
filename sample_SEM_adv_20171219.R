@@ -1,5 +1,5 @@
 # Program Name:ad_analyze_prog
-# Date        :2017.12.12
+# Date        :2017.12.19
 
 ###### Program's Outline ######
 
@@ -30,11 +30,11 @@ library("openxlsx")
 
 ###### Set File Name ####### 
 
-dir_calc = setwd(choose.dir(default=getwd())) 
-
-filename_adv = "input_regression_20171215_2.txt"
+filename_adv = "input_regression_20171215_2.csv"
 filename_out_smp = "output_regression.csv"
 filename_out_tar = "output_result_total.xlsx"
+file_out_regre   = "output_web_regre.csv"
+file_out_roi     = "output_web_roi.csv"
 
 ###### Set Variable for Calculation ####### 
 
@@ -262,7 +262,14 @@ sales_Total    = gsub(" ","",sales_Total)
 ROI_target = data.frame(Media=media,Cost=cost,ROI_DR=roi_Direct,ROI_ID=roi_Indirect,ROI_Sum=roi_Sum,
 				Sales_DR=sales_Direct,Sales_ID=sales_Indirect,Sales_Sum=sales_Sum)
 
-#### Prepare Workbook for Output 
+ROI_out    = data.frame(Media=media,Cost=cost,ROI_DR=roi_Direct,ROI_ID=roi_Indirect)
+
+#### Prepare CSV for Output
+
+write.csv(Regression_result,file_out_regre,row.names=F)
+write.csv(ROI_out,file_out_roi,row.names=F)
+
+#### Prepare Workbook (xlsx) for Output 
 
 wb_output <- createWorkbook()
 addWorksheet(wb_output, sheetName = "Result")
