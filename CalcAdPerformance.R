@@ -27,10 +27,17 @@ library(MASS)
 ###### Args (Set File Name) ######
 # Rscript CalcAdPerformance.R $filename_adv$ $file_out_regre$ $file_out_roi$
 # e.g ) Rscript CalcAdPerformance.R "input_regression_20171215_3.csv" "output_web_regre.csv" "output_web_roi.csv"
+# e.g ) Rscript CalcAdPerformance.R input_regression_20171215_3.csv output_web_regre_`date +%Y%m%d_%H%M%S`.csv output_web_roi_`date +%Y%m%d_%H%M%S`.csv
 
 filename_adv     = sprintf("%s", commandArgs(trailingOnly=TRUE)[1])
 file_out_regre   = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
 file_out_roi     = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
+
+## Output File Path output
+print(filename_adv)
+print(file_out_regre)
+print(file_out_roi)
+
 
 ###### Set Variable for Calculation ####### 
 
