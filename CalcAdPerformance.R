@@ -29,20 +29,20 @@ library(MASS)
 # e.g ) Rscript CalcAdPerformance.R "input_regression_20171215_3.csv" "output_web_regre.csv" "output_web_roi.csv"
 # e.g ) Rscript CalcAdPerformance.R input_regression_20171215_3.csv output_web_regre_`date +%Y%m%d_%H%M%S`.csv output_web_roi_`date +%Y%m%d_%H%M%S`.csv
 
-filename_adv     = sprintf("%s", commandArgs(trailingOnly=TRUE)[1])
-file_out_regre   = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
-file_out_roi     = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
+filename_adv         = sprintf("%s", commandArgs(trailingOnly=TRUE)[1])
+file_out_regre       = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
+file_out_roi         = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
+file_out_tar_no_adv  = sprintf("%s", commandArgs(trailingOnly=TRUE)[4])
 
 ## Output File Path output
 print(filename_adv)
 print(file_out_regre)
 print(file_out_roi)
-
+print(file_out_tar_no_adv)
 
 ###### Set Variable for Calculation ####### 
 
 col_target_val = 3   ## Position of target variable
-Sales_Ini      = 40000000
 
 ###### Initialize Variables #######
 
@@ -98,6 +98,10 @@ for (i in 1:num_media){
 reg_data_1st = stepAIC(lm(data_ad_tar~.,data_ad_click,direction = "both"))
 
 coeff_1st    = coefficients(reg_data_1st)
+
+tar_no_adv = coeff_1st[1]
+tar_no_adv = 40000000   ## For adjusting scale of target *Temporary value N.Josha (2017/12/27) 
+
 ls_explana_1st  = attributes(coeff_1st)
 explana_1st_temp = unlist(ls_explana_1st)
 
@@ -112,6 +116,7 @@ for (i in 1:length(explana_1st_temp)){
 		k = k + 1
 	}
 }
+
 explana_1st = head(explana_1st,k-1)
 size_exp_1st = nrow(explana_1st)
 
@@ -170,7 +175,6 @@ row_start_roi_result = row_start_sw_result + size_exp_1st_2nd + 4
 ####  Allocate Direct Coefficient by Indirect Coefficient Ratio
 
 explana_2nd_alloc = explana_2nd
-
 
 ####  Calculate ROI for each media 
 
@@ -270,3 +274,4 @@ ROI_out    = data.frame(Media=media,Cost=cost,ROI_DR=roi_Direct,ROI_ID=roi_Indir
 #### Prepare CSV for Output
 write.csv(Regression_result,file_out_regre,row.names=F)
 write.csv(ROI_out,file_out_roi,row.names=F)
+write.csv(tar_no_adv,file_out_tar_no_adv,row.names=F)
