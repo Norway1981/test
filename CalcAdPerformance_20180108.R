@@ -25,6 +25,9 @@
 # Linkage in data_ad_cost,data_ad_IMP,data_ad_click MUST be clearly re-defined !!
 #
 
+###### Set Locale #######
+Sys.setlocale("LC_ALL","en_US.UTF-8")
+
 ###### Read Library #######
 rm(list = ls(all.names = TRUE))
 library(MASS)
