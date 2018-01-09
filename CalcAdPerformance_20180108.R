@@ -119,8 +119,6 @@ for (i in 1:length(explana_1st_temp)){
 	}
 }
 
-cost_tmp_1st = data_ad_cost(,explana_1st[,3]+1)
-
 explana_1st = head(explana_1st,k-1)
 size_exp_1st = nrow(explana_1st)
 
@@ -133,7 +131,7 @@ for (i in 1:size_exp_1st){
 	
 	reg_data_2nd = stepAIC(lm(data_ad_click[,explana_1st[i,1]]~.,data_ad_IMP,direction = "both"))
 	
-	threshold_2nd = mean(data_ad_click[,explana_1st[i,1]])*threshold_explaÅ@
+	threshold_2nd = mean(data_ad_click[,explana_1st[i,1]])*threshold_expla¬Å@
 
 	### Adopt explanatory variable meeting certain condition 
 	k = 1
