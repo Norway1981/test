@@ -131,7 +131,7 @@ for (i in 1:size_exp_1st){
 	
 	reg_data_2nd = stepAIC(lm(data_ad_click[,explana_1st[i,1]]~.,data_ad_IMP,direction = "both"))
 	
-	threshold_2nd = mean(data_ad_click[,explana_1st[i,1]])*threshold_expla@
+	threshold_2nd = mean(data_ad_click[,explana_1st[i,1]])*threshold_expla
 
 	### Adopt explanatory variable meeting certain condition 
 	k = 1
