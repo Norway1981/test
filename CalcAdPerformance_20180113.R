@@ -1,5 +1,5 @@
 # Program Name:ad_analyze_prog
-# Date        :2018.01.12
+# Date        :2018.01.13
 
 ###### Program's Outline ######
 
@@ -39,7 +39,7 @@ file_out_tar_no_adv  = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
 
 #dir_calc = setwd(choose.dir(default=getwd())) 
 
-#filename_adv = "input_regression_20180103.csv"
+#filename_adv = "input_regression_20180113.csv"
 #file_out_tar_no_adv = "output_result_total.csv"
 #file_out_regre      = "output_web_regre.csv"
 
@@ -150,7 +150,7 @@ size_exp_1st               = nrow(explana_1st)
 ####  Adjustment of ROI scale (1st)####
 
 impact_by_adv_1st = sum(as.numeric(explana_1st[,2])*as.numeric(explana_1st[,5]))
-ratio_real_calc   = tar_by_adv/impact_by_adv_1st
+ratio_real_calc   = tar_by_adv/impact_by_adv_1st / 2
 
 explana_1st[,2]  = as.numeric(explana_1st[,2]) * ratio_real_calc
 
@@ -196,7 +196,7 @@ size_exp_2nd     = nrow(explana_2nd)
 ####  Adjustment of ROI scale (2nd)####
 
 impact_by_adv_2nd = sum(as.numeric(explana_2nd[,2])*as.numeric(explana_2nd[,5]))
-ratio_real_calc   = tar_by_adv/impact_by_adv_2nd
+ratio_real_calc   = tar_by_adv/impact_by_adv_2nd  / 2
 
 explana_2nd[,2] = as.numeric(explana_2nd[,2]) * ratio_real_calc
 
@@ -226,3 +226,4 @@ Regression_result = data.frame(Media=media_1st_2nd,Cost=cost_total,Connection=co
 
 write.csv(Regression_result,file_out_regre,row.names=F)
 write.csv(tar_no_adv,file_out_tar_no_adv,row.names=T)
+	
