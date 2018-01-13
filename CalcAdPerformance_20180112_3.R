@@ -50,8 +50,6 @@ print(file_out_tar_no_adv)
 
 ###### Set Variable for Calculation ####### 
 
-###### Set Variable for Calculation ####### 
-
 col_target_val = 2   ## Position of target variable
 row_data       = 150 ## Row that the data contained
 
@@ -62,7 +60,7 @@ name_col         = matrix(c("data","coeff","connect"),1,3)
 
 ####  Condition for adopting explanatory variable
 
-threshold_expla = 0.0001 #If scale of coeff < threshold_expla*mean(target), deleted in stepwise.
+threshold_expla = 0.00001 #If scale of coeff < threshold_expla*mean(target), deleted in stepwise.
 
 ####  Read and Divide Ad-data into:
 #Meta:Information about data
@@ -99,6 +97,7 @@ names(name_ad_IMP)      = data_ad_cat[2,data_ad_cat[3,]==2]    #Name of name_ad_
 names(name_ad_click)    = data_ad_cat[2,data_ad_cat[3,]==3]    #Name of name_ad_click (Click)
 
 data_ad_tar      = data_ad_targ_tmp[1:row_data,col_target_val]
+tar_with_adv     = sum(data_ad_tar)
 
 ####  Apply Stepwise regression (Target - Click) 
 
@@ -107,31 +106,53 @@ reg_data_1st = stepAIC(lm(data_ad_tar~.,data_ad_click,direction = "both"))
 threshold_1st = mean(data_ad_tar)*threshold_expla
 coeff_1st    = coefficients(reg_data_1st)
 
-tar_no_adv = coeff_1st[1]
+tar_no_adv = coeff_1st[1] * row_data
 names(tar_no_adv) = "Intercept"
 
-ls_explana_1st  = attributes(coeff_1st)
+tar_by_adv  = tar_with_adv - tar_no_adv
+
+ls_explana_1st   = attributes(coeff_1st)
 explana_1st_temp = unlist(ls_explana_1st)
 
 k = 1
-explana_1st   = matrix(1,length(explana_1st_temp),5)
-coeff_1st_def = matrix(1,length(explana_1st_temp),1)
+explana_1st      = matrix(1,length(explana_1st_temp),5)
+coeff_1st_def    = matrix(1,length(explana_1st_temp),1)
+
 for (i in 1:length(explana_1st_temp)){
 	if((coeff_1st[i]>threshold_1st) && (names(coeff_1st[i]) != "(Intercept)")){
-		coeff_1st_def[k] = coeff_1st[i]
-		explana_1st[k,1] = names(coeff_1st[i])
-		num_ad_click     = grep(names(reg_data_1st$coeff[i]),name_ad_click)
-		explana_1st[k,2] = coeff_1st[i]/cost_per_click[num_ad_click]
-		explana_1st[k,3] = names(name_ad_click[num_ad_click])
-		explana_1st[k,4] = 0
-		explana_1st[k,5] = sum(data_ad_cost[,as.integer(explana_1st[k,3])])
+		coeff_1st_def[k]     = coeff_1st[i]
+		explana_1st[k,1]     = names(coeff_1st[i])
+		num_ad_click         = grep(names(reg_data_1st$coeff[i]),name_ad_click)
+		explana_1st[k,2]     = coeff_1st[i]/cost_per_click[num_ad_click]
+		explana_1st[k,3]     = names(name_ad_click[num_ad_click])
+		explana_1st[k,4]     = 0
+		explana_1st[k,5]     = sum(data_ad_cost[,as.integer(explana_1st[k,3])])
+		if (k == 1){
+			data_explana_1st = data_ad_click[,num_ad_click]
+		}else{
+			data_explana_1st = cbind(data_explana_1st,data_ad_click[,num_ad_click])
+		}
 		k = k + 1
 	}
 }
 
-explana_1st  = head(explana_1st,k-1)
-coeff_1st_def= head(coeff_1st_def,k-1)
-size_exp_1st = nrow(explana_1st)
+explana_1st                = head(explana_1st,k-1)
+coeff_1st_def              = head(coeff_1st_def,k-1)
+size_exp_1st               = nrow(explana_1st)
+
+####  Apply Regression by adopted variables
+# This part would be necessary to improve quality in the future (2018/1/13)
+# colnames(data_explana_1st) = explana_1st[,1]
+# lm(data_ad_tar~.,as.data.frame(data_explana_1st))
+#
+###########################################
+
+####  Adjustment of ROI scale (1st)####
+
+impact_by_adv_1st = sum(as.numeric(explana_1st[,2])*as.numeric(explana_1st[,5]))
+ratio_real_calc   = tar_by_adv/impact_by_adv_1st
+
+explana_1st[,2]  = as.numeric(explana_1st[,2]) * ratio_real_calc
 
 # Set elements in explana_1st
 explana_2nd=matrix(1,1,2)
@@ -172,13 +193,16 @@ for (i in 1:size_exp_1st){
 }
 size_exp_2nd     = nrow(explana_2nd)
 
+####  Adjustment of ROI scale (2nd)####
+
+impact_by_adv_2nd = sum(as.numeric(explana_2nd[,2])*as.numeric(explana_2nd[,5]))
+ratio_real_calc   = tar_by_adv/impact_by_adv_2nd
+
+explana_2nd[,2] = as.numeric(explana_2nd[,2]) * ratio_real_calc
+
 media_exp_tmp_1  = matrix(explana_1st[,1],length(explana_1st[,1]),1)
 media_exp_tmp_2  = matrix(explana_2nd[,1],length(explana_2nd[,1]),1)
 media_1st_2nd    = rbind(media_exp_tmp_1,media_exp_tmp_2)
-
-cost_tmp_1st     = matrix(explana_1st[,5],length(explana_1st[,5]),1)
-cost_tmp_2nd     = matrix(explana_2nd[,5],length(explana_2nd[,5]),1) 
-cost_total       = as.integer(rbind(cost_tmp_1st,cost_tmp_2nd))
 
 connect_tmp_1st  = matrix(explana_1st[,4],length(explana_1st[,4]),1)
 connect_tmp_2nd  = matrix(explana_2nd[,4],length(explana_2nd[,4]),1)
@@ -191,6 +215,10 @@ coeff_1st_dr     = as.numeric(rbind(coeff_tmp_1st,coeff_tmp_zero1))
 coeff_tmp_2nd    = matrix(explana_2nd[,2],length(explana_2nd[,2]),1)
 coeff_tmp_zero2  = matrix(0,length(explana_1st[,2]),1)
 coeff_2nd_id     = as.numeric(rbind(coeff_tmp_zero2,coeff_tmp_2nd))
+
+cost_tmp_1st     = matrix(explana_1st[,5],length(explana_1st[,5]),1)
+cost_tmp_2nd     = matrix(explana_2nd[,5],length(explana_2nd[,5]),1) 
+cost_total       = as.integer(rbind(cost_tmp_1st,cost_tmp_2nd))
 
 Regression_result = data.frame(Media=media_1st_2nd,Cost=cost_total,Connection=connect_1st_2nd,ROI_Direct=coeff_1st_dr,ROI_InDirect=coeff_2nd_id)
 
