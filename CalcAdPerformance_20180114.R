@@ -1,5 +1,5 @@
 # Program Name:ad_analyze_prog
-# Date        :2018.01.13
+# Date        :2018.01.14
 
 ###### Program's Outline ######
 
@@ -61,6 +61,10 @@ name_col         = matrix(c("data","coeff","connect"),1,3)
 ####  Condition for adopting explanatory variable
 
 threshold_expla = 0.00001 #If scale of coeff < threshold_expla*mean(target), deleted in stepwise.
+
+####  Impact ratio of Direct factor
+
+ratio_impact_dr = 0.2 #Indirect factor has larger impact on target
 
 ####  Read and Divide Ad-data into:
 #Meta:Information about data
@@ -150,7 +154,7 @@ size_exp_1st               = nrow(explana_1st)
 ####  Adjustment of ROI scale (1st)####
 
 impact_by_adv_1st = sum(as.numeric(explana_1st[,2])*as.numeric(explana_1st[,5]))
-ratio_real_calc   = tar_by_adv/impact_by_adv_1st / 2
+ratio_real_calc   = tar_by_adv/impact_by_adv_1st * ratio_impact_dr
 
 explana_1st[,2]  = as.numeric(explana_1st[,2]) * ratio_real_calc
 
@@ -196,7 +200,7 @@ size_exp_2nd     = nrow(explana_2nd)
 ####  Adjustment of ROI scale (2nd)####
 
 impact_by_adv_2nd = sum(as.numeric(explana_2nd[,2])*as.numeric(explana_2nd[,5]))
-ratio_real_calc   = tar_by_adv/impact_by_adv_2nd  / 2
+ratio_real_calc   = tar_by_adv/impact_by_adv_2nd * (1 - ratio_impact_dr)
 
 explana_2nd[,2] = as.numeric(explana_2nd[,2]) * ratio_real_calc
 
