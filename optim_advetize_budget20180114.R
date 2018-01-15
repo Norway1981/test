@@ -33,20 +33,20 @@ filename_intercept         = sprintf("%s", commandArgs(trailingOnly=TRUE)[1])
 filename_ROI_cost          = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
 filename_output            = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
 calc_param                 = sprintf("%s", commandArgs(trailingOnly=TRUE)[4])
-percent_diff               = sprintf("%s", commandArgs(trailingOnly=TRUE)[5])
-limit_target               = sprintf("%s", commandArgs(trailingOnly=TRUE)[6])
+percent_diff               = as.integer(sprintf("%s", commandArgs(trailingOnly=TRUE)[5]))
+limit_target               = as.integer(sprintf("%s", commandArgs(trailingOnly=TRUE)[6]))
 
 if(calc_param==1){
 	# In case of calc_param = 1
 	cost_max_total = limit_target  # Cost Limitation
-}elif(calc_param==2){
+}else if(calc_param==2){
 	# In case of calc_param = 2
 	sales_target   = limit_target  # Sales Target
 }
 
 ##Read Input File
 data_intercept       = read.csv(file(filename_intercept))
-data_ROI_cost        = read.csv(file(filename_ROI))
+data_ROI_cost        = read.csv(file(filename_ROI_cost))
 
 num_param = length(unique(data_ROI_cost[,1]))
 
@@ -181,7 +181,6 @@ if(lp_opt$status == 0){
 	
 	result_title = matrix(c("Media","ROI","Initial Cost","Initial Sales","Optimized Cost","Optimized Sales"),1,6)
 	intcpt_opt   = cbind(intcpt_ini,intcpt_ini[3],intcpt_ini[4])
-	total_opt  	 = cbind(total_ini,total_cost_opt,total_sales_opt)
 
 	## Standard Output
 	print(paste("Optimized Total Cost:",total_cost_opt))
