@@ -1,0 +1,15 @@
+1,TV,テレビ,GRP
+2,Leaflets,チラシ,配布数
+3,Newspaper,新聞,発行部数
+4,YouTube_GooglePreferred_View,Youtube,ビュー
+5,YouTube_BumperAds,Youtube BA,ビュー
+6,FBIG_LinkAD,FBIG,クリック
+7,TW_WebSite_card,TW WC,クリック
+8,YouTube_Trueview,YouTube_TrV,ビュー
+9,TrueView_Movie,TrueView,ビュー
+10,LINE_ADS_Platform_Movie,LINE AD,クリック
+11,Twitter_Movie,TW MV,クリック
+12,Twitter_Pic_Intkey,TW PI,クリック
+13,Twitter_Pic_handle,TW PH,クリック
+14,Facebook_Pic,FBP,クリック
+15,Instagram_Pic,IGP,クリック
