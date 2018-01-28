@@ -1,5 +1,5 @@
 # Program Name:ad_analyze_prog
-# Date        :2018.01.21
+# Date        :2018.01.28
 
 ###### Program's Outline ######
 
@@ -34,20 +34,17 @@ library(MASS)
 # e.g ) Rscript CalcAdPerformance.R input_regression_20171215_3.csv output_web_regre_`date +%Y%m%d_%H%M%S`.csv output_web_tar_no_adv_`date +%Y%m%d_%H%M%S`.csv
 
 filename_adv         = sprintf("%s", commandArgs(trailingOnly=TRUE)[1])
-filename_list_media  = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
-file_out_regre       = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
-file_out_tar_no_adv  = sprintf("%s", commandArgs(trailingOnly=TRUE)[4])
+file_out_regre       = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
+file_out_tar_no_adv  = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
 
 #dir_calc = setwd(choose.dir(default=getwd())) 
 
-#filename_adv        = "input_regression_20180119.csv"
-#filename_list_media = "list_media.csv"
-#file_out_tar_no_adv = "output_result_total.csv"
+#filename_adv        = "input_regression_20180128.csv"
 #file_out_regre      = "output_web_regre.csv"
+#file_out_tar_no_adv = "output_result_total.csv"
 
 ## Output File Path output
 print(filename_adv)
-print(filename_list_media)
 print(file_out_regre)
 print(file_out_tar_no_adv)
 
@@ -76,12 +73,10 @@ ratio_impact_dr = 0.2 #Indirect factor has larger impact on target
 #recog(2nd Explanatory):Analog Ad + Imp
 #Budget
 
-data_ad       = read.table(filename_adv,skip=5,header=T,sep=",",fileEncoding="Shift-JIS")
-data_ad_cat   = read.table(filename_adv,nrow=4,header=F,sep=",")
-list_media    = read.table(filename_list_media,header=F,sep=",",fileEncoding="Shift-JIS")
+data_ad       = read.table(filename_adv,skip=6,header=F,sep=",",fileEncoding="Shift-JIS")
+data_ad_cat   = read.table(filename_adv,nrow=6,header=F,sep=",",stringsAsFactors=F)
 len_ad        = length(data_ad)
-num_media     = max(data_ad_cat[2,])
-name_attri    = colnames(data_ad)
+num_media     = max(as.integer(data_ad_cat[3,2:ncol(data_ad_cat)]))
 
 data_ad_meta            = data_ad[1:row_data,data_ad_cat[1,]==1]	#Meta data (Ex. Date)
 data_ad_targ_tmp        = data_ad[1:row_data,data_ad_cat[1,]==2]	#Target variable
@@ -93,15 +88,22 @@ data_ad_Internet        = data_ad[1:row_data,data_ad_cat[2,]==4]	#Internet categ
 data_ad_cost            = data_ad[1:row_data,data_ad_cat[4,]==1]	#Cost
 data_ad_recog           = data_ad[1:row_data,data_ad_cat[4,]==2]	#Recongnize
 data_ad_und             = data_ad[1:row_data,data_ad_cat[4,]==3]	#Understanding
-name_ad_cost            = names(data_ad[1,data_ad_cat[4,]==1]) 	#List of media name (Cost)
-name_ad_recog           = names(data_ad[1,data_ad_cat[4,]==2]) 	#List of media name (Recognize)
-name_ad_und             = names(data_ad[1,data_ad_cat[4,]==3]) 	#List of media name (Understand)
+name_ad_cost            = data_ad_cat[5,data_ad_cat[4,]==1]  	#List of media name (Cost)
+name_ad_recog           = data_ad_cat[5,data_ad_cat[4,]==2]  	#List of media name (Recognize)
+name_ad_und             = data_ad_cat[5,data_ad_cat[4,]==3] 	#List of media name (Understand)
 id_ad_cost              = as.integer(data_ad_cat[3,data_ad_cat[4,]==1])    #Name of name_ad_cost  (Cost)
 id_ad_recog             = as.integer(data_ad_cat[3,data_ad_cat[4,]==2])    #Name of name_ad_recog (Recognize)
 id_ad_und               = as.integer(data_ad_cat[3,data_ad_cat[4,]==3])    #Name of name_ad_und   (Understand)
 names(name_ad_cost)     = id_ad_cost
 names(name_ad_recog)    = id_ad_recog
 names(name_ad_und)      = id_ad_und
+names(data_ad_cost)     = name_ad_cost
+names(data_ad_recog)    = name_ad_recog
+names(data_ad_und)      = name_ad_und
+kpi_ad_recog            = data_ad_cat[6,data_ad_cat[4,]==2]  	#List of media name (Recognize)
+kpi_ad_und              = data_ad_cat[6,data_ad_cat[4,]==3]  	#List of media name (Recognize)
+names(kpi_ad_recog)     = id_ad_recog
+names(kpi_ad_und)       = id_ad_und
 cost_per_recog          = colSums(data_ad_cost[id_ad_recog])/colSums(data_ad_recog)                 
 cost_per_und            = colSums(data_ad_cost[id_ad_und])/colSums(data_ad_und)           
 
@@ -209,17 +211,13 @@ ratio_real_calc   = tar_by_adv/impact_by_adv_2nd * (1 - ratio_impact_dr)
 
 explana_2nd[,2]  = as.numeric(explana_2nd[,2]) * ratio_real_calc
 
-name_exp_tmp_1   = matrix(explana_1st[,1],length(explana_1st[,1]),1)
-name_exp_tmp_2   = matrix(explana_2nd[,1],length(explana_2nd[,1]),1)
-name_1st_2nd     = rbind(name_exp_tmp_1,name_exp_tmp_2)
+media_exp_tmp_1   = matrix(explana_1st[,1],length(explana_1st[,1]),1)
+media_exp_tmp_2   = matrix(explana_2nd[,1],length(explana_2nd[,1]),1)
+media_1st_2nd     = rbind(media_exp_tmp_1,media_exp_tmp_2)
 
-media_exp_tmp_1  = matrix(as.character(list_media[as.integer(explana_1st[,3]),3]),length(explana_1st[,1]),1)
-media_exp_tmp_2  = matrix(as.character(list_media[as.integer(explana_2nd[,3]),3]),length(explana_2nd[,1]),1)
-media_1st_2nd    = rbind(media_exp_tmp_1,media_exp_tmp_2)
-
-dt_exp_tmp_1     = matrix(as.character(list_media[as.integer(explana_1st[,3]),4]),length(explana_1st[,1]),1)
-dt_exp_tmp_2     = matrix(as.character(list_media[as.integer(explana_2nd[,3]),4]),length(explana_2nd[,1]),1)
-dt_1st_2nd       = rbind(dt_exp_tmp_1,dt_exp_tmp_2)
+kpi_exp_tmp_1    = matrix(as.character(kpi_ad_und[as.integer(explana_1st[,3])]),length(explana_1st[,1]),1)
+kpi_exp_tmp_2    = matrix(as.character(kpi_ad_recog[as.integer(explana_2nd[,3])]),length(explana_2nd[,1]),1)
+kpi_1st_2nd      = rbind(kpi_exp_tmp_1,kpi_exp_tmp_2)
 
 connect_tmp_1st  = matrix(explana_1st[,4],length(explana_1st[,4]),1)
 connect_tmp_2nd  = matrix(explana_2nd[,4],length(explana_2nd[,4]),1)
@@ -237,7 +235,7 @@ cost_tmp_1st     = matrix(explana_1st[,5],length(explana_1st[,5]),1)
 cost_tmp_2nd     = matrix(explana_2nd[,5],length(explana_2nd[,5]),1) 
 cost_total       = as.integer(rbind(cost_tmp_1st,cost_tmp_2nd))
 
-Regression_result = data.frame(Name=name_1st_2nd,Media=media_1st_2nd,Datatype=dt_1st_2nd,Cost=cost_total,Connection=connect_1st_2nd,ROI_Direct=coeff_1st_dr,ROI_InDirect=coeff_2nd_id)
+Regression_result = data.frame(Media=media_1st_2nd,KPI=kpi_1st_2nd,Cost=cost_total,Connection=connect_1st_2nd,ROI_Direct=coeff_1st_dr,ROI_InDirect=coeff_2nd_id)
 
 #### Prepare CSV for Output
 
