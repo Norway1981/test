@@ -1,5 +1,5 @@
 # Program Name:optim_advertize_budget
-# Date        :2018.01.17
+# Date        :2018.01.29
 
 ###### Program's Outline ######
 #< Goal >
@@ -32,9 +32,9 @@ library(lpSolve) #Library for Linear Programming
 #filename_intercept = "output_result_total.csv"
 #filename_ROI_cost  = "output_web_regre.csv"
 #filename_output    = "output_optim.csv"
-#calc_param         = 1
-#percent_diff       = 20
-#limit_target       = 49900000
+#calc_param         = 2
+#percent_diff       = 50
+#limit_target       = 869800000
 
 filename_intercept         = sprintf("%s", commandArgs(trailingOnly=TRUE)[1])
 filename_ROI_cost          = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
@@ -58,30 +58,31 @@ data_ROI_cost        = read.csv(file(filename_ROI_cost))
 num_param = length(unique(data_ROI_cost[,1]))
 
 data_input_media     = matrix("",num_param)
+data_input_kpi       = matrix("",num_param)
 data_input_ROI 	   = matrix(0,num_param)
 data_input_cost	   = matrix(0,num_param)
 data_input_sales     = matrix(0,num_param)
 k = 1
 
 for(i in 1:nrow(data_ROI_cost)){
-	i
 	if(i == 1){
 		data_input_media[k] = as.character(data_ROI_cost[i,1])
-		data_input_ROI[k]   = data_ROI_cost[i,4]+data_ROI_cost[i,5] 
-		data_input_cost[k]  = data_ROI_cost[i,2]
-		data_input_sales[k] = data_input_ROI[k] * data_ROI_cost[i,2]
+		data_input_kpi[k]   = as.character(data_ROI_cost[i,2])
+		data_input_ROI[k]   = data_ROI_cost[i,5]+data_ROI_cost[i,6] 
+		data_input_cost[k]  = data_ROI_cost[i,3]
+		data_input_sales[k] = data_input_ROI[k] * data_ROI_cost[i,3]
 		k = k + 1
 	}else{
 		id_param_same = grep(as.character(data_ROI_cost[i,1]),data_input_media)
 		if(length(id_param_same) == 0){
 			data_input_media[k] = as.character(data_ROI_cost[i,1])
-			data_input_ROI[k]   = data_ROI_cost[i,4]+data_ROI_cost[i,5]
-			data_input_cost[k]  = data_ROI_cost[i,2]
-			data_input_sales[k] = data_input_ROI[k] * data_ROI_cost[i,2]
+			data_input_ROI[k]   = data_ROI_cost[i,5]+data_ROI_cost[i,6]
+			data_input_cost[k]  = data_ROI_cost[i,3]
+			data_input_sales[k] = data_input_ROI[k] * data_ROI_cost[i,3]
 			k = k + 1
 		}else{
-			data_input_ROI[id_param_same]   = data_input_ROI[id_param_same]+data_ROI_cost[i,4]+data_ROI_cost[i,5]	
-			data_input_sales[id_param_same] = data_input_ROI[id_param_same]  * data_ROI_cost[i,2]
+			data_input_ROI[id_param_same]   = data_input_ROI[id_param_same]+data_ROI_cost[i,5]+data_ROI_cost[i,6]	
+			data_input_sales[id_param_same] = data_input_ROI[id_param_same]  * data_ROI_cost[i,3]
 		}
 	}			
 }
