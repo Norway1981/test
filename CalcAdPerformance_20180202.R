@@ -5,7 +5,7 @@
 
 #< Goal >
 # (1) Visualize Online-Offline ad effectiveness
-# (2) Budget planing to maximize ad effectiveness 
+# (2) Budget planing to maximize ad effectiveness
 #
 #< Image of visualization of Online-Offline ad effectiveness>
 #
@@ -37,7 +37,7 @@ filename_adv         = sprintf("%s", commandArgs(trailingOnly=TRUE)[1])
 file_out_regre       = sprintf("%s", commandArgs(trailingOnly=TRUE)[2])
 file_out_tar_no_adv  = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
 
-#dir_calc = setwd(choose.dir(default=getwd())) 
+#dir_calc = setwd(choose.dir(default=getwd()))
 
 #filename_adv        = "input_regression_20180130_1.csv"
 #file_out_regre      = "output_web_regre.csv"
@@ -48,7 +48,7 @@ print(filename_adv)
 print(file_out_regre)
 print(file_out_tar_no_adv)
 
-###### Set Variable for Calculation ####### 
+###### Set Variable for Calculation #######
 
 col_target_val = 2   ## Position of target variable
 row_data       = 150 ## Row that the data contained
@@ -74,7 +74,7 @@ ratio_impact_dr = 0.2 #Indirect factor has larger impact on target
 #Budget
 
 data_ad         = read.table(filename_adv,skip=6,header=F,sep=",",fileEncoding="Shift-JIS")
-data_ad_cat_tmp = read.table(filename_adv,nrow=6,header=F,sep=",")
+data_ad_cat_tmp = read.table(filename_adv,nrow=6,header=F,sep=",",fileEncoding="Shift-JIS")
 len_ad          = length(data_ad)
 
 data_ad_cat     = matrix(0,4,len_ad)
@@ -117,13 +117,13 @@ kpi_ad_recog            = data_ad_cat_kpi[1,data_ad_cat[4,]==2]  	#List of media
 kpi_ad_und              = data_ad_cat_kpi[1,data_ad_cat[4,]==3]  	#List of media name (Recognize)
 names(kpi_ad_recog)     = id_ad_recog
 names(kpi_ad_und)       = id_ad_und
-cost_per_recog          = colSums(data_ad_cost[id_ad_recog])/colSums(data_ad_recog)                 
-cost_per_und            = colSums(data_ad_cost[id_ad_und])/colSums(data_ad_und)           
+cost_per_recog          = colSums(data_ad_cost[id_ad_recog])/colSums(data_ad_recog)
+cost_per_und            = colSums(data_ad_cost[id_ad_und])/colSums(data_ad_und)
 
 data_ad_tar      = data_ad_targ_tmp[1:row_data,col_target_val]
 tar_with_adv     = sum(data_ad_tar)
 
-####  Apply Stepwise regression (Target - Understand) 
+####  Apply Stepwise regression (Target - Understand)
 
 reg_data_1st  = stepAIC(lm(data_ad_tar~.,data_ad_und,direction = "both"))
 
@@ -184,12 +184,12 @@ explana_2nd=matrix(1,1,2)
 ####  Apply Stepwise regression (Understand - Recognize)
 
 for (i in 1:size_exp_1st){
-	
+
 	reg_data_2nd = stepAIC(lm(data_ad_und[,explana_1st[i,1]]~.,data_ad_recog,direction = "both"))
-	
+
 	threshold_2nd = mean(data_ad_und[,explana_1st[i,1]])*threshold_expla
 
-	### Adopt explanatory variable meeting certain condition 
+	### Adopt explanatory variable meeting certain condition
 	k = 1
 	names_list = matrix(1, nrow=1, ncol=1)
 	coeff_tmp = coefficients(reg_data_2nd)
@@ -199,7 +199,7 @@ for (i in 1:size_exp_1st){
 	for (j in 1:size_coeff_tmp){
 		if((coeff_tmp[j]>threshold_2nd)&&(names(coeff_tmp[j]) != "(Intercept)")){
 			explana_2nd_tmp[k,1]  = names(coeff_tmp[j])
-			num_ad_und	    = grep(names(reg_data_2nd$coeff[j]),name_ad_recog)		
+			num_ad_und	    = grep(names(reg_data_2nd$coeff[j]),name_ad_recog)
 			explana_2nd_tmp[k,2]  = coeff_1st_def[i]/coeff_tmp[j]/cost_per_recog[num_ad_und]
 			explana_2nd_tmp[k,3]  = names(name_ad_recog[num_ad_und])
 			explana_2nd_tmp[k,4]  = i
@@ -245,7 +245,7 @@ coeff_tmp_zero2  = matrix(0,length(explana_1st[,2]),1)
 coeff_2nd_id     = as.numeric(rbind(coeff_tmp_zero2,coeff_tmp_2nd))
 
 cost_tmp_1st     = matrix(explana_1st[,5],length(explana_1st[,5]),1)
-cost_tmp_2nd     = matrix(explana_2nd[,5],length(explana_2nd[,5]),1) 
+cost_tmp_2nd     = matrix(explana_2nd[,5],length(explana_2nd[,5]),1)
 cost_total       = as.integer(rbind(cost_tmp_1st,cost_tmp_2nd))
 
 Regression_result = data.frame(Media=media_1st_2nd,KPI=kpi_1st_2nd,Cost=cost_total,Connection=connect_1st_2nd,ROI_Direct=coeff_1st_dr,ROI_InDirect=coeff_2nd_id)
