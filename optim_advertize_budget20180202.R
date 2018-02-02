@@ -1,5 +1,5 @@
 # Program Name:optim_advertize_budget
-# Date        :2018.01.29
+# Date        :2018.02.02
 
 ###### Program's Outline ######
 #< Goal >
@@ -76,6 +76,7 @@ for(i in 1:nrow(data_ROI_cost)){
 		id_param_same = grep(as.character(data_ROI_cost[i,1]),data_input_media)
 		if(length(id_param_same) == 0){
 			data_input_media[k] = as.character(data_ROI_cost[i,1])
+		      data_input_kpi[k]   = as.character(data_ROI_cost[i,2])
 			data_input_ROI[k]   = data_ROI_cost[i,5]+data_ROI_cost[i,6]
 			data_input_cost[k]  = data_ROI_cost[i,3]
 			data_input_sales[k] = data_input_ROI[k] * data_ROI_cost[i,3]
@@ -87,19 +88,18 @@ for(i in 1:nrow(data_ROI_cost)){
 	}			
 }
 
-data_input = data.frame(Media=data_input_media,ROI=data_input_ROI,Cost=data_input_cost,Sales=data_input_sales)
-
-intcpt_ini   = data.frame(Media="Intercept",ROI=0,Cost=0,Sales=as.integer(data_intercept[1,2]))
+data_input = data.frame(Media=data_input_media,KPI=data_input_kpi,ROI=data_input_ROI,Cost=data_input_cost,Sales=data_input_sales)
+intcpt_ini = data.frame(Media="Intercept",KPI="-",ROI=0,Cost=0,Sales=as.integer(data_intercept[1,2]))
 
 ## Parameter Setting for Optimization
 
 data_input_calc = data_input
 
 channel    = data_input_calc[,1]
-ROI        = data_input_calc[,2]
-param_ini  = data_input_calc[,3]
-param_max  = data_input_calc[,3] * (1 + percent_diff / 100)
-param_min  = data_input_calc[,3] * (1 - percent_diff / 100)
+ROI        = data_input_calc[,3]
+param_ini  = data_input_calc[,4]
+param_max  = data_input_calc[,4] * (1 + percent_diff / 100)
+param_min  = data_input_calc[,4] * (1 - percent_diff / 100)
 
 if(calc_param == 1){
 
@@ -141,7 +141,7 @@ if(calc_param == 1){
 
 	## Optimization with fixing target sales
 
-	sales_target_chg = sales_target - intcpt_ini[4]
+	sales_target_chg = sales_target - intcpt_ini[5]
 	param_cost = matrix(1,1,num_param)
 
 	# Limitation for each channel
@@ -196,7 +196,7 @@ if(calc_param==1){
 result_optim_cost = result_def_cost
 result_def_sale = round(result_def_cost_tmp * ROI)
 if(calc_param==2){
-	total_sale_def    = as.integer(sum(result_def_sale) + intcpt_ini[4])
+	total_sale_def    = as.integer(sum(result_def_sale) + intcpt_ini[5])
 	diff_sale = total_sale_def - sales_target
 	if(abs(diff_sale) <= 10){
 		for(i in 1:length(result_def_sale)){
@@ -210,12 +210,12 @@ if(calc_param==2){
 }
 result_optim_sale = as.integer(result_def_sale)
 total_cost_opt    = sum(result_optim_cost)
-total_sales_opt   = sum(result_optim_sale)+intcpt_ini[4]
+total_sales_opt   = sum(result_optim_sale)+intcpt_ini[5]
 result_optim = cbind(data_input_calc,result_optim_cost,result_optim_sale)
 #dimnames(result_optim) = list(channel,c("ROI","Initial Cost","Initial Sales","Optimized Cost","Optimized Sales"))
 	
-result_title = matrix(c("Media","ROI","Initial Cost","Initial Sales","Optimized Cost","Optimized Sales"),1,6)
-intcpt_opt   = cbind(intcpt_ini,intcpt_ini[3],intcpt_ini[4])
+result_title = matrix(c("Media","KPI","ROI","Initial Cost","Initial Sales","Optimized Cost","Optimized Sales"),1,7)
+intcpt_opt   = cbind(intcpt_ini,intcpt_ini[4],intcpt_ini[5])
 
 ## Standard Output
 print(paste("Optimized Total Cost:",total_cost_opt))
