@@ -1,5 +1,5 @@
 # Program Name:ad_analyze_prog
-# Date        :2018.01.28
+# Date        :2018.02.02
 
 ###### Program's Outline ######
 
@@ -39,7 +39,7 @@ file_out_tar_no_adv  = sprintf("%s", commandArgs(trailingOnly=TRUE)[3])
 
 #dir_calc = setwd(choose.dir(default=getwd())) 
 
-#filename_adv        = "input_regression_20180128.csv"
+#filename_adv        = "input_regression_20180130_1.csv"
 #file_out_regre      = "output_web_regre.csv"
 #file_out_tar_no_adv = "output_result_total.csv"
 
@@ -73,9 +73,22 @@ ratio_impact_dr = 0.2 #Indirect factor has larger impact on target
 #recog(2nd Explanatory):Analog Ad + Imp
 #Budget
 
-data_ad       = read.table(filename_adv,skip=6,header=F,sep=",",fileEncoding="Shift-JIS")
-data_ad_cat   = read.table(filename_adv,nrow=6,header=F,sep=",",stringsAsFactors=F)
-len_ad        = length(data_ad)
+data_ad         = read.table(filename_adv,skip=6,header=F,sep=",",fileEncoding="Shift-JIS")
+data_ad_cat_tmp = read.table(filename_adv,nrow=6,header=F,sep=",")
+len_ad          = length(data_ad)
+
+data_ad_cat     = matrix(0,4,len_ad)
+data_ad_cat_med = matrix("",1,len_ad)
+data_ad_cat_kpi = matrix("",1,len_ad)
+for (i in 1:len_ad){
+	data_ad_cat[1,i]     = as.character(data_ad_cat_tmp[1,i])
+	data_ad_cat[2,i]     = as.character(data_ad_cat_tmp[2,i])
+	data_ad_cat[3,i]     = as.character(data_ad_cat_tmp[3,i])
+	data_ad_cat[4,i]     = as.character(data_ad_cat_tmp[4,i])
+	data_ad_cat_med[1,i] = as.character(data_ad_cat_tmp[5,i])
+	data_ad_cat_kpi[1,i] = as.character(data_ad_cat_tmp[6,i])
+}
+
 num_media     = max(as.integer(data_ad_cat[3,2:ncol(data_ad_cat)]))
 
 data_ad_meta            = data_ad[1:row_data,data_ad_cat[1,]==1]	#Meta data (Ex. Date)
@@ -88,9 +101,9 @@ data_ad_Internet        = data_ad[1:row_data,data_ad_cat[2,]==4]	#Internet categ
 data_ad_cost            = data_ad[1:row_data,data_ad_cat[4,]==1]	#Cost
 data_ad_recog           = data_ad[1:row_data,data_ad_cat[4,]==2]	#Recongnize
 data_ad_und             = data_ad[1:row_data,data_ad_cat[4,]==3]	#Understanding
-name_ad_cost            = data_ad_cat[5,data_ad_cat[4,]==1]  	#List of media name (Cost)
-name_ad_recog           = data_ad_cat[5,data_ad_cat[4,]==2]  	#List of media name (Recognize)
-name_ad_und             = data_ad_cat[5,data_ad_cat[4,]==3] 	#List of media name (Understand)
+name_ad_cost            = data_ad_cat_med[1,data_ad_cat[4,]==1]  	#List of media name (Cost)
+name_ad_recog           = data_ad_cat_med[1,data_ad_cat[4,]==2]  	#List of media name (Recognize)
+name_ad_und             = data_ad_cat_med[1,data_ad_cat[4,]==3] 	#List of media name (Understand)
 id_ad_cost              = as.integer(data_ad_cat[3,data_ad_cat[4,]==1])    #Name of name_ad_cost  (Cost)
 id_ad_recog             = as.integer(data_ad_cat[3,data_ad_cat[4,]==2])    #Name of name_ad_recog (Recognize)
 id_ad_und               = as.integer(data_ad_cat[3,data_ad_cat[4,]==3])    #Name of name_ad_und   (Understand)
@@ -100,8 +113,8 @@ names(name_ad_und)      = id_ad_und
 names(data_ad_cost)     = name_ad_cost
 names(data_ad_recog)    = name_ad_recog
 names(data_ad_und)      = name_ad_und
-kpi_ad_recog            = data_ad_cat[6,data_ad_cat[4,]==2]  	#List of media name (Recognize)
-kpi_ad_und              = data_ad_cat[6,data_ad_cat[4,]==3]  	#List of media name (Recognize)
+kpi_ad_recog            = data_ad_cat_kpi[1,data_ad_cat[4,]==2]  	#List of media name (Recognize)
+kpi_ad_und              = data_ad_cat_kpi[1,data_ad_cat[4,]==3]  	#List of media name (Recognize)
 names(kpi_ad_recog)     = id_ad_recog
 names(kpi_ad_und)       = id_ad_und
 cost_per_recog          = colSums(data_ad_cost[id_ad_recog])/colSums(data_ad_recog)                 
