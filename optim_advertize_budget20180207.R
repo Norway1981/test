@@ -3,21 +3,21 @@
 
 ###### Program's Outline ######
 #< Goal >
-# Optimize Advertizing budget by linear programming 
-# 
+# Optimize Advertizing budget by linear programming
+#
 #< Manual >
 # (1) Prepare parameter file for optimization
 # (2) Set budget limitation
 # (3) Apply optimization (Linear Programming)
-# 
+#
 #< Input >
 #
 # filename_intercept  : Intercept
 # filename_ROI_cost   : ROI of Advertizement, Cost
 # calc_param          : 1: Max Total Cost, 2: Sales Target
 # percent_diff        : Optimization range of each channel's cost
-# limit_target        : Limitation of Cost or Sales 
-# 
+# limit_target        : Limitation of Cost or Sales
+#
 #< Output>
 #
 # output_optim.csv : Result of Optimization of Advertizement budget
@@ -92,7 +92,7 @@ for(i in 1:nrow(data_ROI_cost)){
 		data_input_media[k] = as.character(data_ROI_cost[i,1])
 		data_input_idmed[k] = as.character(data_ROI_cost[i,2])
 		data_input_kpi[k]   = as.character(data_ROI_cost[i,3])
-		data_input_ROI[k]   = data_ROI_cost[i,6]+data_ROI_cost[i,7] 
+		data_input_ROI[k]   = data_ROI_cost[i,6]+data_ROI_cost[i,7]
 		data_input_cost[k]  = data_ROI_cost[i,4]
 		data_input_sales[k] = data_input_ROI[k] * data_ROI_cost[i,4]
 		k = k + 1
@@ -107,14 +107,14 @@ for(i in 1:nrow(data_ROI_cost)){
 			data_input_sales[k] = data_input_ROI[k] * data_ROI_cost[i,4]
 			k = k + 1
 		}else{
-			data_input_ROI[id_param_same]   = data_input_ROI[id_param_same]+data_ROI_cost[i,6]+data_ROI_cost[i,7]	
+			data_input_ROI[id_param_same]   = data_input_ROI[id_param_same]+data_ROI_cost[i,6]+data_ROI_cost[i,7]
 			data_input_sales[id_param_same] = data_input_ROI[id_param_same]  * data_ROI_cost[i,4]
 		}
-	}			
+	}
 }
 
 data_input = data.frame(Media=data_input_media,Media_ID=data_input_idmed,KPI=data_input_kpi,ROI=data_input_ROI,Cost=data_input_cost,Sales=data_input_sales)
-intcpt_ini = data.frame(Media="Intercept",Media_ID="-",KPI="-",ROI=0,Cost=0,Sales=as.integer(data_intercept[1,2]))
+intcpt_ini = data.frame(Media="Intercept",Media_ID="-",KPI="-",ROI=0,Cost=0,Sales=as.integer(round(data_intercept[1,2])))
 
 ## Parameter Setting for Optimization
 
@@ -235,7 +235,7 @@ if(flag_calc == 1){
 		lp_opt = lp("max", param_cost, con_opt, sign_opt, rhs_opt)
 	}
 #	print(paste("Optimized Cost2:",lp_opt$solution))
-	
+
 }
 
 ## Optimization & Output
@@ -252,7 +252,7 @@ if(flag_calc==1){
 				break
 			}
 		}
-	} 
+	}
 }
 result_optim_cost = result_def_cost
 result_def_sale = round(result_def_cost_tmp * ROI)
@@ -267,14 +267,14 @@ if(flag_calc==2){
 				break
 			}
 		}
-	} 
+	}
 }
 result_optim_sale = as.integer(result_def_sale)
 total_cost_opt    = sum(result_optim_cost)
 total_sales_opt   = sum(result_optim_sale)+intcpt_ini[6]
 result_optim = cbind(data_input_calc,result_optim_cost,result_optim_sale)
 #dimnames(result_optim) = list(channel,c("ROI","Initial Cost","Initial Sales","Optimized Cost","Optimized Sales"))
-	
+
 result_title = matrix(c("Media","Media_ID","KPI","ROI","Initial Cost","Initial Sales","Optimized Cost","Optimized Sales"),1,8)
 intcpt_opt   = cbind(intcpt_ini,intcpt_ini[5],intcpt_ini[6])
 
